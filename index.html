@@ -5,5 +5,21 @@
 </head>
 <body>
 bird test
+<script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
+<script type="text/javascript">
+	$.ajax({
+        type: 'POST',
+        url: '/hi/api/login/loginCS',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({loginName: 'swr', password: '123456', verifyCode: null}),
+        complete: function (XMLHttpRequest, textStatus) {
+            var data = JSON.parse(XMLHttpRequest.responseText);
+            if (XMLHttpRequest.status === 200 && data.code === 0) {
+                console.info('login', data);
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -3,3 +3,4 @@ node_modules/
 .idea/
 demo/
 birdfile.js
+index.html
