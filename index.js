@@ -11,6 +11,7 @@
 var Express = require('express');
 var request = require('request');
 var colors = require('colors');
+var initFromPlatform = require('./lib/initFromPlatform');
 var middleTasksManager;
 
 
@@ -47,53 +48,59 @@ module.exports = function start(config) {
         global.console.log = function (){};
     }
 
-    if (config.middleware) {
-        if (config.ifAuth) {
-            config.auth(config, jar);
-            // auth(config, jar); ?
-        }
-        // http://stackoverflow.com/questions/20274483/how-do-i-combine-connect-middleware-into-one-middleware
-        return listAll([
-            require('./lib/mock')(config),
-            require('./lib/change-user')(config),
-            require('./lib/proxy')(config)
-        ]);
-    }
-
-    // 普通运行流程
-    if (config.ifAuth) {
-        config.auth(config, jar).then(function () {
-            // setup bird app
-            var app = new Express();
-            // 初始化task manager
-            middleTasksManager = require('./lib/middleTasksManager')(config);
-            app.all('*', require('./lib/lib')(config, middleTasksManager, true));
-
-            // app.all('*', require('./lib/mock')(config));
-            // app.all('*', require('./lib/static')(config));
-            // app.all('*', require('./lib/change-user')(config));
-            // if (config.ifProxy) {
-            //     app.all('*', require('./lib/proxy')(config));
-            // }
-            // go!
-            app.listen(config.birdPort);
-            console.info('BIRD'.rainbow, '============', config.name || '', 'RUNNING at', 'http://localhost:' + config.birdPort, '===============', 'BIRD'.rainbow);
+    // 从指定server拉取bird的初始化配置信息
+    if (config.initCheckUrl) {
+        initFromPlatform(config).then(function (data) {
+            console.info('config', data);
         });
     }
-    else {
-        var app = new Express();
-        // 初始化task manager
-        middleTasksManager = require('./lib/middleTasksManager')(config);
-        app.all('*', require('./lib/lib')(config, middleTasksManager, false));
+    // if (config.middleware) {
+    //     if (config.ifAuth) {
+    //         config.auth(config, jar);
+    //         // auth(config, jar); ?
+    //     }
+    //     // http://stackoverflow.com/questions/20274483/how-do-i-combine-connect-middleware-into-one-middleware
+    //     return listAll([
+    //         require('./lib/mock')(config),
+    //         require('./lib/change-user')(config),
+    //         require('./lib/proxy')(config)
+    //     ]);
+    // }
 
-        // app.all('*', require('./lib/mock')(config));
-        // app.all('*', require('./lib/static')(config));
-        // if (config.ifProxy) {
-        //     app.all('*', require('./lib/proxy')(config));
-        // }
-        app.listen(config.birdPort);
-        console.info('BIRD'.rainbow, '============', config.name || '', 'RUNNING at', 'http://localhost:' + config.birdPort, '===============', 'BIRD'.rainbow);
-    }
+    // 普通运行流程
+    // if (config.ifAuth) {
+    //     config.auth(config, jar).then(function () {
+    //         // setup bird app
+    //         var app = new Express();
+    //         // 初始化task manager
+    //         middleTasksManager = require('./lib/middleTasksManager')(config);
+    //         app.all('*', require('./lib/lib')(config, middleTasksManager, true));
+
+    //         // app.all('*', require('./lib/mock')(config));
+    //         // app.all('*', require('./lib/static')(config));
+    //         // app.all('*', require('./lib/change-user')(config));
+    //         // if (config.ifProxy) {
+    //         //     app.all('*', require('./lib/proxy')(config));
+    //         // }
+    //         // go!
+    //         app.listen(config.birdPort);
+    //         console.info('BIRD'.rainbow, '============', config.name || '', 'RUNNING at', 'http://localhost:' + config.birdPort, '===============', 'BIRD'.rainbow);
+    //     });
+    // }
+    // else {
+    //     var app = new Express();
+    //     // 初始化task manager
+    //     middleTasksManager = require('./lib/middleTasksManager')(config);
+    //     app.all('*', require('./lib/lib')(config, middleTasksManager, false));
+
+    //     // app.all('*', require('./lib/mock')(config));
+    //     // app.all('*', require('./lib/static')(config));
+    //     // if (config.ifProxy) {
+    //     //     app.all('*', require('./lib/proxy')(config));
+    //     // }
+    //     app.listen(config.birdPort);
+    //     console.info('BIRD'.rainbow, '============', config.name || '', 'RUNNING at', 'http://localhost:' + config.birdPort, '===============', 'BIRD'.rainbow);
+    // }
 };
 
 
