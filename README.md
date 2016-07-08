@@ -82,6 +82,7 @@ require('bird')(config)
 ```
 - 下面是详细的配制说明，*表示必须的配制， #表示正在开发或功能不稳定的配制， 其他是可选项
   ```json
+{
   // *服务名字,本配制以ar为例
   name: 'ar',
   // *服务端口
@@ -133,6 +134,7 @@ require('bird')(config)
   initCheckUrl: '',
   // #自定义的任务存放路径
   tasksDir: ''
+}
   ```
 ## extendable
 
