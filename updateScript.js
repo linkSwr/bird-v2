@@ -9,7 +9,7 @@
  */
 var fs = require('fs');
 var args = process.argv;
-var version = args[2] || '';
+var version = args[2] || ''; 
 var projectId = args[4] || '';
 var pId = args[3];
 var path = require('path');

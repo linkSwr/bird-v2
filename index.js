@@ -11,7 +11,7 @@
 var Express = require('express');
 var request = require('request');
 var colors = require('colors');
-var spawn = require('child_process').spawn;
+var fork = require('child_process').fork;
 var initFromPlatform = require('./lib/initFromPlatform');
 var middleTasksManager;
 
@@ -24,7 +24,7 @@ var middleTasksManager;
  *
  * @return {undefined}
  */
-module.exports = function start(config) {
+function start(config) {
     var jar = request.jar();  // jar to store cookies
 
     // 兼容处理 ES6 assign
@@ -52,11 +52,11 @@ module.exports = function start(config) {
     // 从指定server拉取bird的初始化配置信息
     if (config.initCheckUrl) {
         initFromPlatform(config).then(function (data) {
-            config = data;
-            console.info('请重启 bird server');
-            // restart(config);
+            // config = data;
+            // console.info('请重启 bird server');
+            restart(config);
         }).catch(function (data) {
-            config = data;
+            // config = data;
             runServer();
         });
     }
@@ -220,32 +220,43 @@ function copyObj(target, source) {
 /**
  * @method restart
  *
+ * @param {Object} config 配置信息
+ *
  * @description: 更新npm包之后在本进程执行目录下重启bird
  */
 function restart(config) {
-    var child = spawn('node', [__filename, config],
-        {
-            cwd: process.execPath
-        }
-    );
-    child.stdout.on('data', function (data) {
-        process.stdout.write(data.toString('utf8'));
-    });
-
-    child.stderr.on('data', function (data) {
-        process.stdout.write(data.toString('utf8'));
-    });
-
-    child.on('exit', function (code) {
-        // console.info(stdout);
-        if (code) {
-            console.info('exec code: ' + code);
-        }
-        else {
-            console.info('exec code: ' + code);
-        }
+    try {
+        var child = fork(__filename, ['-cps'],
+            {
+                cwd: process.cwd(),
+                silent: false
+            }
+        );
+    }
+    catch(e) {
+        console.info(e);
+    }
+    child.send({
+        command: 'startup',
+        config: config
     });
     process.on('exit', function (code) {
         child.kill();
     });
 }
+
+// 当作为子线程启动的入口
+if (process.argv[2] === '-cps') {
+    process.on('message', function (data) {
+        if (data.command === 'startup') {
+            start(data.config);
+        }
+    });
+}
+
+// 标准入口
+module.exports = function (config) {
+    if (!!process.argv[2] || process.argv[2] !== '-cps') {
+        start(config);
+    }
+};

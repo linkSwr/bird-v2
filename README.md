@@ -8,7 +8,7 @@
 - touch birdfile.js
 - vi birdfile.js
 
-```
+```js
 // sample birdfile.js
 module.exports = {
   name: 'ar',
@@ -28,7 +28,7 @@ module.exports = {
 - touch birdfile.js
 - vi birdfile.js
 
-```
+```js
 // sample birdfile.js
 var config = {
   name: 'ar',
@@ -50,7 +50,7 @@ require('bird')(config)
 
 ## config
 - bird的配制可是一个object,也可以是一个array, eg:
-```
+```js
   var config = {
     name: 'ar',
     bird_port: 7676,
@@ -81,7 +81,7 @@ require('bird')(config)
   }]
 ```
 - 下面是详细的配制说明，*表示必须的配制， #表示正在开发或功能不稳定的配制， 其他是可选项
-  ```
+  ```json
   // *服务名字,本配制以ar为例
   name: 'ar',
   // *服务端口
@@ -127,12 +127,35 @@ require('bird')(config)
   }
   // #mock缓存功能配置, 需要在配置好mock才可用
   mock_cache: __dirname,  // 设置为 __dirname则爬取接口数据存放到mock文件夹中且更新birdfile.js中的mock.map
+  // #数据平台地址，配置此项后每次从开发server拉取到的JSON数据都会上报到数据平台
+  platformUrl: '',
+  // #开启代理服务前，拉取平台配置信息的server地址
+  initCheckUrl: '',
+  // #自定义的任务存放路径
+  tasksDir: ''
   ```
 ## extendable
 
 - 如果你的项目不是用uuap登录的，那你需要配制auth_standalone选项, 然后在auths/目录下添加上对应的js文件，当然你可以联系我，告诉你项目的地址 及登录帐号， 让我帮你加
 
+## register tasks before proxy or after proxy
 
+- 可以注册一些逻辑任务，例如你想在请求被路由到开发server前做一些数据处理或者数据统计。
+- birdv2/lib/middletasks路径下添加相应的任务文件。
+- 但是强烈推荐在配置中使用 tasksDir 配置你的任务存放目录
+- 添加的任务需要满足一点点定义规范
+
+```js
+module.exports = function (_config) {
+    return {
+        type: 'response', // reponse 或者 request
+        deps: [], // 依赖的任务，会先执行完依赖任务后再执行本任务
+        processer: function (req, res, reslove, reject, reschunk, reqChunk) {
+            reslove(); // 任务完成需要触发reslove 或 reject
+        }
+    };
+};
+```
 
 ## browser ci api
 
