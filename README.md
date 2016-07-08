@@ -132,7 +132,7 @@ require('bird')(config)
   platformUrl: '',
   // #开启代理服务前，拉取平台配置信息的server地址
   initCheckUrl: '',
-  // #自定义的任务存放路径
+  // #配置自定义任务的存放路径
   tasksDir: ''
 }
   ```
