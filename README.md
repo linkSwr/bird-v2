@@ -135,7 +135,8 @@ require('bird')(config)
   // #配置自定义任务的存放路径
   tasksDir: ''
 }
-  ```
+```
+
 ## extendable
 
 - 如果你的项目不是用uuap登录的，那你需要配制auth_standalone选项, 然后在auths/目录下添加上对应的js文件，当然你可以联系我，告诉你项目的地址 及登录帐号， 让我帮你加

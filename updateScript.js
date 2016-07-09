@@ -9,7 +9,7 @@
  */
 var fs = require('fs');
 var args = process.argv;
-var version = args[2] || ''; 
+var version = args[2] || '';
 var projectId = args[4] || '';
 var pId = args[3];
 var path = require('path');
@@ -17,6 +17,7 @@ var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var updateHandle;
 var nodeModulesPath = path.normalize(__dirname + '/../../');
+var projectFilePath = path.normalize(__dirname + '/projectInfo.json');
 var t;
 
 exec('npm install birdv2@' + version + ' --registry=https://registry.npm.taobao.org', {
@@ -26,8 +27,8 @@ exec('npm install birdv2@' + version + ' --registry=https://registry.npm.taobao.
         console.info('exec error: ' + error);
     }
     else {
-        fs.open(__dirname + '/projectId.json', 'w+', function (err, fd) {
-            fs.writeSync(fd, projectId, null, 'utf8');
+        modifyProjectFile({
+            projectId: projectId
         });
     }
     clearInterval(t);
@@ -38,3 +39,18 @@ exec('npm install birdv2@' + version + ' --registry=https://registry.npm.taobao.
 t = setInterval(function () {
     process.stdout.write('=');
 }, 300);
+
+/**
+ * @method modifyProjectFile
+ *
+ * @param {Object} opts 需要新增写入文件的JSON信息
+ *
+ * @description: 更新项目信息文件
+ */
+function modifyProjectFile(opts) {
+    var data = {
+        projectId: opts.projectId
+    }
+    data = JSON.stringify(data);
+    fs.writeFileSync(projectFilePath, data, 'utf8');
+}
